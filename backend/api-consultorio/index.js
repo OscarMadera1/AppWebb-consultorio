@@ -2,6 +2,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import conectarDB from "./config/db.js";
+import cors from "cors";
 
 //importar archivos de rutas
 import rolRoutes from "./routes/auth/rolRoutes.js";
@@ -20,6 +21,22 @@ dotenv.config();
 
 //conectar a la base de datos de mongo
 conectarDB();
+
+//permitir conexiones entrantes de otros dominios o host con cors
+const listaBlanca = [process.env.FRONTEND_URL];
+const opcionesCors = {
+    origin: function (origin, callback) {
+        if (listaBlanca.includes(origin)) {
+            //puedes consumir los servicios del api
+            callback(null, true);
+        } else {
+            //no puedes consumir los servicios del api
+            callback(new Error("Error de consumo de Cors."));
+        }
+    },
+};
+//app.use(cors(opcionesCors));
+app.use(cors());
 
 //definicion de rutas o routing
 app.use("/api/roles", rolRoutes);

@@ -1,0 +1,16 @@
+[
+    {
+        "nombreRol": "ADMIN",
+        "estadoRol": 1
+    },
+
+    {
+        "nombreRol": "PACIENTES",
+        "estadoRol": 1
+    },
+
+    {
+        "nombreRol": "MEDICOS",
+        "estadoRol": 1
+    }
+]

@@ -127,11 +127,31 @@ const autenticar = async (req, res) => {
     }
 }
 
+const crearCuenta = async (req, res) => {
+    //evitar usuarios duplicados por el usuarioAcceso
+    const { usuarioAcceso } = req.body;
+    const existeUsuario = await Usuario.findOne({ usuarioAcceso });
+
+    if (existeUsuario) {
+        const error = new Error("Usuario ya existe en la base de datos.");
+        return res.status(400).json({ msg: error.message, ok: "NO" });
+    }
+
+    try {
+        const usuario = new Usuario(req.body);
+        const usuarioGuardado = await usuario.save();
+        res.json({ body: usuarioGuardado, msg: "Documento creado correctamente.", ok: "SI" });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export {
     agregar,
     listar,
     eliminar,
     editar,
     listarUno,
-    autenticar
+    autenticar,
+    crearCuenta
 }
