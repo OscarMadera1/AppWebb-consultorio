@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { agregar, listar, eliminar, editar, listarUno, autenticar } from "../../controllers/auth/usuarioController.js"
+import { agregar, listar, eliminar, editar, listarUno, autenticar, crearCuenta } from "../../controllers/auth/usuarioController.js"
 import validarAutenticacion from "../../middleware/validarAutenticacion.js";
 
 //rutas privadas
@@ -12,5 +12,6 @@ router.delete("/:id", validarAutenticacion, eliminar);
 
 //rutas publicas
 router.post("/login", autenticar);
+router.post("/crear-cuenta", crearCuenta);
 
 export default router;

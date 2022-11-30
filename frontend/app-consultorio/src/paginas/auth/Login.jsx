@@ -1,7 +1,68 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from "react-router-dom";
+import APIInvoke from '../../helpers/APIInvoke';
+import mensajesFlotantes from '../../helpers/mensajesFlotantes';
 
 const Login = () => {
+
+    const navigate = useNavigate();
+
+    const [login, setLogin] = useState({
+        usuario: '',
+        clave: ''
+    });
+
+    const { usuario, clave } = login;
+
+    const onChange = (e) => {
+        setLogin({
+            ...login,
+            [e.target.name]: e.target.value
+        });
+    }
+
+    useEffect(() => {
+        document.getElementById('usuario').focus();
+    }, []);
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        iniciarSesion();
+    }
+
+    const iniciarSesion = async () => {
+        const body = {
+            usuarioAcceso: login.usuario,
+            claveAcceso: login.clave
+        }
+
+        const response = await APIInvoke.invokePOST(`/api/usuarios/login`, body);
+
+        if (response.ok === "NO_EXISTE") {
+            mensajesFlotantes('error', response.msg);
+        } else if (response.ok === "CLAVE_INCORRECTA") {
+            mensajesFlotantes('error', response.msg);
+        } else {
+            //eliminar datos del localstorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('iduser');
+            localStorage.removeItem('username');
+
+            //obtener datos a almacenar
+            const token = response.tokenJwt;
+            const idUsuario = response._id;
+            const nombreUsuario = response.nombresUsuario;
+
+            //guardar en el localstorage
+            localStorage.setItem('token', token);
+            localStorage.setItem('iduser', idUsuario);
+            localStorage.setItem('username', nombreUsuario);
+
+            //redireccionar al menu principal o al dashboard
+            navigate("/dashboard");
+        }
+    }
+
     return (
         <>
             <main>
@@ -10,55 +71,52 @@ const Login = () => {
                         <div className="container">
                             <div className="row justify-content-center">
                                 <div className="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-                                    <div className="d-flex justify-content-center py-4">
-                                        <a href="index.html" className="logo d-flex align-items-center w-auto">
 
-                                        
-                                        </a>
-                                    </div>
                                     <div className="card mb-3">
                                         <div className="card-body">
                                             <div className="pt-4 pb-2">
                                                 <h5 className="card-title text-center pb-0 fs-4">Iniciar Sesión</h5>
-                                                <p className="text-center small">Bienvenid@, ingrese sus credenciales</p>
+                                                <p className="text-center small">Bienvenido, ingrese sus credenciales</p>
                                             </div>
-                                            <form className="row g-3 needs-validation" noValidate>
+                                            <form className="row g-3 needs-validation" onSubmit={onSubmit}>
+
                                                 <div className="col-12">
-                                                    <label htmlFor="yourUsername" className="form-label">Usuario</label>
+                                                    <label htmlFor="usuario" className="form-label">Usuario</label>
                                                     <div className="input-group has-validation">
                                                         <span className="input-group-text" id="inputGroupPrepend">@</span>
                                                         <input type="text"
-                                                            name="usuario"
                                                             className="form-control"
                                                             id="usuario"
+                                                            name="usuario"
+                                                            value={usuario}
+                                                            onChange={onChange}
                                                             required
                                                         />
-
                                                     </div>
                                                 </div>
+
                                                 <div className="col-12">
-                                                    <label htmlFor="yourPassword" className="form-label">Contraseña</label>
+                                                    <label htmlFor="clave" className="form-label">Contraseña</label>
                                                     <input type="password"
-                                                        name="clave"
                                                         className="form-control"
                                                         id="clave"
+                                                        name="clave"
+                                                        value={clave}
+                                                        onChange={onChange}
                                                         required
                                                     />
-
                                                 </div>
 
                                                 <div className="col-12">
                                                     <button className="btn btn-primary w-100" type="submit">Ingresar</button>
                                                 </div>
                                                 <div className="col-12">
-                                                    <p className="small mb-0">No tienes cuenta? <Link to={"/crear-cuenta"}>Crea una cuenta </Link></p>
+                                                    <p className="small mb-0">No tienes cuenta?
+                                                        <Link to={"/crear-cuenta"}> Crear Cuenta</Link>
+                                                    </p>
                                                 </div>
                                             </form>
                                         </div>
-                                    </div>
-                                    <div className="credits">
-
-                                        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
                                     </div>
                                 </div>
                             </div>
@@ -66,7 +124,6 @@ const Login = () => {
                     </section>
                 </div>
             </main>
-
         </>
     );
 }
